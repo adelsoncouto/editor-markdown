@@ -85,7 +85,7 @@ public class Server{
 				      os.flush();
 			      }
 			    }catch(Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
           }
           aHttp.close();
         }
@@ -94,7 +94,7 @@ public class Server{
       http.start();
       System.out.println("Rodando na porta "+port);
     }catch(Exception e){
-      e.printStackTrace();
+      //e.printStackTrace();
     }
   }
   

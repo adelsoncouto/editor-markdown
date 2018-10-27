@@ -1,115 +1,146 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>MD</title>
-<link rel="stylesheet" href="/highlight/styles/default.css">
-<script src="/highlight/highlight.pack.js"></script>
-<script src="/mermaid/mermaid.min.js"></script>
-<script src="/showdown/showdown.min.js"></script>
-<script src="/showdown/showdown-table.min.js"></script>
-<style>
-  * {
-    font-family: Arial,"Helvetica Neue",Helvetica,sans-serif;
-  }
 
-  h1,h2,h3,h4{
-    border-bottom: solid 2px #e1e1e1;
-  }
-  textarea{
-    font-family:monospace,monospace;
-  }
-  table,tr,td,th{
-    border: solid 1px #000;
-    border-collapse: collapse;
-  }
-  th{
-    background: #e1e1e1;
-  }
-  table{
-    width:100%
-  }
-  td{
-    padding: 5px;
-  }
-</style>
+<head>
+  <meta charset="UTF-8">
+  <title>MD</title>
+  <link rel="stylesheet" href="/highlight/styles/default.css">
+  <script src="/highlight/highlight.pack.js"></script>
+  <script src="/mermaid/mermaid.min.js"></script>
+  <script src="/showdown/showdown.min.js"></script>
+  <script src="/showdown/showdown-table.min.js"></script>
+  <style>
+    * {
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      border-bottom: solid 2px #e1e1e1;
+    }
+
+    textarea {
+      font-family: monospace, monospace;
+    }
+
+    table,
+    tr,
+    td,
+    th {
+      border: solid 1px #000;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #e1e1e1;
+    }
+
+    table {
+      width: 100%
+    }
+
+    td {
+      padding: 5px;
+    }
+  </style>
 </head>
+
 <body style="height:99%;position:absolute; width:99%; padding: 0px; margin:0px">
   <textarea style="width:50%;height:99%" id="texto" onkeyup="converter()" onkeydown="ident(event)"></textarea>
   <div id="md" style="position: absolute; top:0px; left: 51%; width: 49%;height:97%;overflow:auto; padding-bottom: 2%"></div>
   <script>
-    function converter(){
-      
+    function converter() {
+
       let el = document.getElementById("md");
       let eltop = el.scrollTop;
       let elheight = el.scrollHeight;
-          
+
       let con = new showdown.Converter(
         {
           simplifiedAutoLink: true,
           strikethrough: true,
           tables: true
-        } 
+        }
       );
       let md = document.getElementById("texto").value;
       let html = con.makeHtml(md);
       document.getElementById("md").innerHTML = html;
-      document.querySelectorAll('pre code').forEach((a,b)=>{
+      document.querySelectorAll('pre code').forEach((a, b) => {
         hljs.highlightBlock(a);
       });
 
-      document.querySelectorAll('.language-mermaid').forEach(function(a,b){
+      document.querySelectorAll('.language-mermaid').forEach(function (a, b) {
         let pre = a.parentElement;
         let doc = pre.parentElement;
         let div = document.createElement('div');
-        div.setAttribute('class','grafico-mermaid');
+        div.setAttribute('class', 'grafico-mermaid');
         let md = a.innerText;
         a.style.display = 'none';
-        div.innerHTML = md.replace('<br[^>]*>',"\n");
+        div.innerHTML = md.replace('<br[^>]*>', "\n");
 
         doc.insertBefore(div, pre);
       });
-      mermaid.init(undefined,".grafico-mermaid");
-      
+      mermaid.init(undefined, ".grafico-mermaid");
+
       var xhttp = new XMLHttpRequest();
       xhttp.open("POST", "/api/v1", true);
       xhttp.send(md);
-      
-      
+
+
       let elheightf = el.scrollHeight;
       el.scrollTop = Math.abs(elheightf - elheight + eltop);
-      
-      
+
+
     }
+    
     function ident(e) {
+
       let target = e.target;
       let start = target.selectionStart;
       let end = target.selectionEnd;
       let v = target.value;
-      let inicio = v.slice(0,start);
+      let inicio = v.slice(0, start);
       let fim = v.slice(end);
       let ultimoEnter = inicio.lastIndexOf("\n");
-      let ultimaLinha = inicio.slice(ultimoEnter+1,start);   
-      let espacos = ultimaLinha.replace(/^( *).*$/g,"$1");
-      if (e.key == 'Enter'){
-        target.value = inicio + '\n'+espacos + fim;
+      let ultimaLinha = inicio.slice(ultimoEnter + 1, start);
+      let espacos = ultimaLinha.replace(/^( *).*$/g, "$1");
+      let key = e.code;
+      let shift = e.shiftKey;
+      let ctrl = e.ctrlKey;
+      let alt = e.altKey;
+
+      if (key == 'Enter') {
+        target.value = inicio + '\n' + espacos + fim;
         target.selectionEnd = start + 1 + espacos.length;
         e.preventDefault();
       }
-      if(e.key == 'Tab'){
-        if(e.shiftKey){
-          target.value = inicio.replace(/  $/g,'') + fim;
-          target.selectionEnd = start-2;
-        }else{
-          target.value = inicio + '  ' + fim;  
-          target.selectionEnd = start+2;
+
+      else if (key == 'Tab') {
+        if (e.shiftKey) {
+          target.value = inicio.replace(/  $/g, '') + fim;
+          target.selectionEnd = start - 2;
+        } else {
+          target.value = inicio + '  ' + fim;
+          target.selectionEnd = start + 2;
         }
         e.preventDefault();
       }
+
+      else if (key == "KeyB" && shift && alt) {
+        document.getElementById("texto").value = "# TÍTULO\n\n"
+          + "# Histórico\n\n"
+          + "|Data|Versão|Responsável|Nota|"
+          + "\n| --- | --- | --- | --- |\n";
+        converter();
+        e.preventDefault();
+      }
+
     }
     converter();
   </script>
-  <script>mermaid.initialize({startOnLoad:false});</script>
+  <script>mermaid.initialize({ startOnLoad: false });</script>
 </body>
-</html>
 
+</html>
