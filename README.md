@@ -11,9 +11,8 @@ Editor markdown
 
 # Uso
 
-
 ```bash
-./jre/bin/java Server 3000 '/path/to/file/md'
+./start.sh [porta] '/path/to/file.md'
 ```
 
 Acesse o endereço [http://localhost:3000](http://localhost:3000)
